@@ -79,8 +79,6 @@ $(document).ready(function() {
 		}
 	});
 
-
-
 	$('.agr-form').on('submit', function(e) {
 		e.preventDefault();
 		var curForm = $(e.currentTarget),
@@ -116,6 +114,26 @@ $(document).ready(function() {
 			else {
 				$('.output p').text('Smthing went wrong.');
 			}
+		});
+	});
+
+	$('.child-form').on('submit', function(e) {
+		e.preventDefault();
+		var curForm = $(e.currentTarget);
+
+		$.get(this.action, $(this).serialize(), function(data, status) {
+			if (status === 'success') {
+				if (data.res === 'ok') {
+					$('.output p').html(JSON.stringify(data.answ, null, 4).replace(/\n/g, '<br>').replace(/\ /g, '&nbsp'));
+				}
+				else {
+					$('.output p').text(data.descr);
+				}
+			}
+			else {
+				$('.output p').text('Smthing went wrong.');
+			}
 		})
 	});
+	
 });

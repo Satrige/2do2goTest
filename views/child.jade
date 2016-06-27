@@ -1,0 +1,13 @@
+extends layout
+
+block content
+	h1= title
+
+	form.child-form(action='/api/child')
+		.form-wrapper
+			textarea.child-info(name='child-json', cols='100', rows='20')
+		button#submit-btn(type='submit') Отправить
+
+	.output
+		div Результат:
+		p

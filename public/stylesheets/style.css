@@ -28,6 +28,12 @@ input {
 	padding: 10px;
 }
 
+.output p {
+	border: 1px solid black;
+	min-height: 100px;
+	padding: 10px;
+}
+
 .table-field-wrapper {
 	margin-right: 10px;
 }
