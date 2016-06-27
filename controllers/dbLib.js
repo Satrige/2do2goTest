@@ -10,11 +10,9 @@ exports.initDB = function(callback) {
     var dbConfs = global.settings.db;
 
     Step(function() {
-            console.log("First");
             MongoClient.connect(`mongodb://${dbConfs.host}:${dbConfs.port}/reddit`, this.slot());
         },
         function(err, db) {
-            console.log("Second");
             if (err) throw err;
 
             postColl = new Collection(db, 'posts');
@@ -28,15 +26,9 @@ exports.initDB = function(callback) {
                 if (err) throw err;
 
                 exports.postColl = postColl;
-                callback(null, this.slot());
-            });
-        },
-        function(err, data) {
-            console.log("Third");
-            if (err) throw err;
-
-            callback(null, {
-                res : 'ok'
+                callback(null, {
+                    res : 'ok'
+                });
             });
         },
         function(err) {
