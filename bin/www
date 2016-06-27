@@ -16,7 +16,9 @@ var Step = require('twostep').Step;
 //Setting up global variables
 var isProd = (prodHosts.indexOf(os.hostname()) !== -1);
 var config = isProd ? require('../data/config.json').production : require('../data/config.json').development;
-var nodeSettings = config.node;
+
+global.settings = config;
+
 /**
  * Get port from environment and store in Express.
  */
@@ -29,8 +31,7 @@ if (cluster.isMaster) {
     for (var i = 0; i < cpuCount; ++i) {
         cluster.fork({
             workertype: 'web',
-            PORT: nodeSettings.port,
-            config: config
+            PORT: global.settings.node.port
         });
     }
 } else {

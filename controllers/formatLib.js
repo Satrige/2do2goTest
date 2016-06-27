@@ -67,7 +67,6 @@ class SQLFormatter {
     }
 
     initSettings(formatParams) {
-        console.dir(formatParams);
         let validData = conform.validate(this.schema , formatParams);
         if (validData.valid) {
             let fields = formatParams['fields'];
