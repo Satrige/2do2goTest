@@ -1,21 +1,22 @@
 {
-  "name": "nodetest",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
-  "dependencies": {
-    "body-parser": "~1.15.1",
-    "chai": "^3.5.0",
-    "conform": "^0.2.12",
-    "csv": "^1.1.0",
-    "express": "~4.13.4",
-    "jade": "~1.11.0",
-    "mongodb": "^2.1.18",
-    "mongodbext": "^2.0.6",
-    "morgan": "~1.7.0",
-    "twostep": "^0.4.1",
-    "underscore": "^1.8.3"
-  }
+    "name": "nodetest",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "start": "node ./bin/www",
+        "test" : "mocha"
+    },
+    "dependencies": {
+        "body-parser": "~1.15.1",
+        "chai": "^3.5.0",
+        "conform": "^0.2.12",
+        "csv": "^1.1.0",
+        "express": "~4.13.4",
+        "jade": "~1.11.0",
+        "mongodb": "^2.1.18",
+        "mongodbext": "^2.0.6",
+        "morgan": "~1.7.0",
+        "twostep": "^0.4.1",
+        "underscore": "^1.8.3"
+    }
 }
