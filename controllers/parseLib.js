@@ -41,4 +41,4 @@ var makeTree = function(inputNodes) {
 	}
 
 	return inputNodes;
-}
+};

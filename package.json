@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "body-parser": "~1.15.1",
+    "chai": "^3.5.0",
     "conform": "^0.2.12",
     "csv": "^1.1.0",
     "express": "~4.13.4",
