@@ -197,4 +197,12 @@ router.get('/child', function(req, res, next) {
     );
 });
 
+router.get('*', function(req, res, next) {
+    res.json({
+        res : 'err',
+        answ : 'not_implemented_yet'
+    });
+});
+
+
 module.exports = router;

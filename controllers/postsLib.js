@@ -19,7 +19,7 @@ exports.sortArticles = function(params, callback) {
         function(err, insertedIds) {
             if (err) throw err;
 
-            dataInst.getSortedData(insertedIds, this.slot());
+            dataInst.performAction(insertedIds, this.slot());
         },
         function(err, sortedData) {
             if (err) throw err;
@@ -48,7 +48,7 @@ exports.aggregateArticles = function(params, callback) {
         function(err, insertedIds) {
             if (err) throw err;
 
-            dataInst.getAggregatedData(insertedIds, this.slot());
+            dataInst.performAction(insertedIds, this.slot());
         },
         function(err, aggrData) {
             if (err) throw err;
@@ -68,6 +68,24 @@ class DataPosts {
     constructor(params) {
         this.url = params.url || '';
         this.posts = [];
+    }
+
+    verifyData(inputData) {
+        if (!inputData || !Array.isArray(inputData) || !inputData.length < 0) {
+            return false;
+        }
+
+        var curValidStatus = null;
+
+        for (let i in inputData) {
+            curValidStatus = conform.validate(inputData[i].data, this.postSchema);
+
+            if (!curValidStatus.valid) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     getData(callback) {
@@ -96,9 +114,19 @@ class DataPosts {
                 if (err) throw err;
 
                 var parsedData = JSON.parse(data);
-                self.posts = parsedData.data.children;
 
-                callback(null);
+                this.pass(parsedData);
+            },
+            function(err, parsedData) {
+                if (err) throw err;
+
+                if (self.verifyData(parsedData.data.children)) {
+                    self.posts = parsedData.data.children;
+                    callback(null);
+                }
+                else {
+                    callback(new Error('Wrong input file format'));
+                }
             },
             function(err) {
                 console.log('Error occured: ', err.stack || err);
@@ -155,20 +183,25 @@ class DataForSort extends DataPosts {
             order: params.order || 'DESC'
         }
 
-        this.postsSchema = {
+        this.postSchema = {
             properties: {
+                id: {
+                    description: 'id',
+                    type: 'string',
+                    required: true
+                },
                 created: {
                     description: 'creation time',
                     type: 'number',
                     required: true
                 },
                 score: {
-                    description: 'number of scores',
+                    description: 'score',
                     type: 'number',
                     required: true
                 },
-                domain: {
-                    description: 'domain name',
+                title: {
+                    description: 'title',
                     type: 'string',
                     required: true
                 }
@@ -176,7 +209,7 @@ class DataForSort extends DataPosts {
         };
     }
 
-    getSortedData(postIndexes, callback) {
+    performAction(postIndexes, callback) {
         if (postIndexes && Array.isArray(postIndexes) && postIndexes.length > 0) {
             var sortObj = {};
             sortObj['data.' + this.sortInfo.field] = (this.sortInfo.order === 'ASC') ? 1 : -1;
@@ -204,6 +237,21 @@ class DataForAggregate extends DataPosts {
     constructor(params) {
         super(params);
         this.order = params.order || 'DESC';
+
+        this.postSchema = {
+            properties: {
+                domain: {
+                    description: 'domain',
+                    type: 'string',
+                    required: true
+                },
+                score: {
+                    description: 'score',
+                    type: 'number',
+                    required: true
+                }
+            }
+        };
     }
 
     sortByScore(data) {
@@ -223,7 +271,7 @@ class DataForAggregate extends DataPosts {
         }
     }
 
-    getAggregatedData(postIndexes, callback) {
+    performAction(postIndexes, callback) {
         if (postIndexes && Array.isArray(postIndexes) && postIndexes.length > 0) {
 
             var mapFunc = function() {
