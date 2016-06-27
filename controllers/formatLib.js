@@ -3,11 +3,18 @@ var conform = require('conform');
 var stringify = require('csv-stringify');
 
 exports.formatAnsw = function(params, callback) {
-    let formatInst = new Formatter(params.formatParams)
 
-    return formatInst.formatData(params.items, callback);
+    let formatInst = new Formatter(params.formatParams);
+
+    let answ = formatInst.initSettings(params.formatParams);
+
+    if (answ.valid) {
+        formatInst.formatData(params.items, callback);
+    }
+    else {
+        callback(new Error('Wrong parameters.'));
+    }
 };
-
 
 class Formatter {
     constructor (formatParams) {
@@ -21,8 +28,10 @@ class Formatter {
             default:
                 this.fomatter = null;
         }
+    }
 
-        this.fomatter.initSettings(formatParams);
+    initSettings(formatParams) {
+        return this.fomatter.initSettings(formatParams);
     }
 
     formatData(data, callback) {
@@ -58,8 +67,18 @@ class SQLFormatter {
     }
 
     initSettings(formatParams) {
+        console.dir(formatParams);
         let validData = conform.validate(this.schema , formatParams);
         if (validData.valid) {
+            let fields = formatParams['fields'];
+            for (let i in fields) {
+                if (fields[i] === '') {
+                    return {
+                        valid : false
+                    };
+                }
+            }
+
             this.tableName = formatParams['table-name'];
             this.names = formatParams['fields'];
             this.numCols = this.names.length;

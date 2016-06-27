@@ -1,6 +1,10 @@
 'use strict';
 $(document).ready(function() {
-	$('.sort-form').on('submit', function(e) {
+
+	var curType = $('.main-form select[name=op]').val(),
+		selectedFormat = $('.main-form select[name=format]').val();
+
+	$('.main-form').on('submit', function(e) {
 		e.preventDefault();
 
 		var curForm = $(e.currentTarget),
@@ -17,15 +21,24 @@ $(document).ready(function() {
 			params['csv-delimiter'] = curForm.find('input[name=csv-delimiter]').val();
 		}
 		else {
-			params['table-name'] = curForm.find('input[name=sql-table-name]').val();
-			params['fields'] = [];
-			params['fields'].push(curForm.find('input[name=sql-id-name]').val());
-			params['fields'].push(curForm.find('input[name=sql-date-name]').val());
-			params['fields'].push(curForm.find('input[name=sql-rating-name]').val());
-			params['fields'].push(curForm.find('input[name=sql-title-name]').val());
+			if (curType === 'agr') {
+				params['table-name'] = curForm.find('.sql-agr-params input[name=sql-table-name]').val() || 'posts';
+				params['fields'] = [];
+				params['fields'].push(curForm.find('.sql-agr-params input[name=sql-domain-name]').val()) || 'domain';
+				params['fields'].push(curForm.find('.sql-agr-params input[name=sql-count-name]').val()) || 'count';
+				params['fields'].push(curForm.find('.sql-agr-params input[name=sql-sum-name]').val()) || 'sum';
+			}
+			else {
+				params['table-name'] = curForm.find('input[name=sql-table-name]').val() || 'posts';
+				params['fields'] = [];
+				params['fields'].push(curForm.find('.sql-sort-params input[name=sql-id-name]').val()) || 'id';
+				params['fields'].push(curForm.find('.sql-sort-params input[name=sql-date-name]').val()) || 'created';
+				params['fields'].push(curForm.find('.sql-sort-params input[name=sql-rating-name]').val()) || 'score';
+				params['fields'].push(curForm.find('.sql-sort-params input[name=sql-title-name]').val()) || 'title';
+			}
 		}
 
-		$.get(this.action, params, function(data, status) {
+		$.get('/api/' + curType, params, function(data, status) {
 			if (status === 'success') {
 				if (data.res === 'ok') {
 					$('.output p').html(data.answ.replace(/\n/g, '<br>'));
@@ -40,13 +53,33 @@ $(document).ready(function() {
 		})
 	});
 
-	$('.sort-form select[name=format]').on('change', function(e) {
-		var selectedFormat = $(e.currentTarget).val();
+	$('.main-form select[name=op]').on('change', function(e) {
+		curType = $(e.currentTarget).val();
+		if (curType == 'sort') {
+			$('.main-form select[name=field]').slideDown();
+		}
+		else {
+			$('.main-form select[name=field]').slideUp();
+		}
 
-		$('.sort-form .extend-params').slideUp(function() {
-			$('.sort-form .' + selectedFormat + '-params').slideDown();
-		});
+		if (selectedFormat === 'sql') {
+			$('.main-form .extend-params').slideUp();
+			$('.main-form .' + selectedFormat + '-' + curType + '-params').slideDown();
+		}
 	});
+
+	$('.main-form select[name=format]').on('change', function(e) {
+		selectedFormat = $(e.currentTarget).val();
+		$('.main-form .extend-params').slideUp();
+		if (selectedFormat === 'sql') {
+			$('.main-form .' + selectedFormat + '-' + curType + '-params').slideDown();
+		}
+		else {
+			$('.main-form .' + selectedFormat + '-params').slideDown();
+		}
+	});
+
+
 
 	$('.agr-form').on('submit', function(e) {
 		e.preventDefault();
@@ -84,13 +117,5 @@ $(document).ready(function() {
 				$('.output p').text('Smthing went wrong.');
 			}
 		})
-	});
-
-	$('.agr-form select[name=format]').on('change', function(e) {
-		var selectedFormat = $(e.currentTarget).val();
-
-		$('.agr-form .extend-params').slideUp(function() {
-			$('.agr-form .' + selectedFormat + '-params').slideDown();
-		});
 	});
 });

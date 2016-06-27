@@ -58,6 +58,7 @@ exports.aggregateArticles = function(params, callback) {
             return;
         },
         function(err) {
+            console.log(`Handle an error: ${err.message}`);
             callback(err);
         }
     );
@@ -202,13 +203,19 @@ class DataForSort extends DataPosts {
 class DataForAggregate extends DataPosts {
     constructor(params) {
         super(params);
-
+        this.order = params.order || 'DESC';
     }
 
     sortByScore(data) {
+        var self = this;
         if (data && Array.isArray(data)) {
             return data.sort( function(a, b) {
-                return (a.value.totalScores >= b.value.totalScores) ? -1 : 1;
+                if (self.order === 'DESC') {
+                    return (a.value.totalScores >= b.value.totalScores) ? -1 : 1;
+                }
+                else {
+                    return (a.value.totalScores >= b.value.totalScores) ? 1 : -1;
+                }
             });
         }
         else {

@@ -20,7 +20,7 @@ input {
 	padding-bottom: 10px;
 }
 
-.csv-params {
+.csv-params, .sql-agr-params {
 	display: none;
 }
 

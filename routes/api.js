@@ -76,13 +76,13 @@ router.get('/sort', function(req, res, next) {
         function(err) {
             res.json({
                 res: 'err',
-                descr: err.message
+                descr: 'Something went wrong. Please, try to change some parameters.'
             })
         }
     );
 });
 
-router.get('/agregate', function(req, res, next) {
+router.get('/agr', function(req, res, next) {
     Step(function() {
             var validInfo = conform.validate(req.query, inputSchemaSort);
             if (validInfo.valid) {
@@ -115,7 +115,7 @@ router.get('/agregate', function(req, res, next) {
         function(err) {
             res.json({
                 res: 'err',
-                descr: err.message
+                descr: 'Something went wrong. Please, try to change some parameters.'
             })
         }
     );

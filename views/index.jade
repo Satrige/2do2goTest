@@ -5,16 +5,20 @@ block content
 	.wrapper
 		.pure-g
 			.pure-u-1-2
-				form.sort-form(action='/api/sort')
+				form.main-form(action='/api/sort')
 					.form-wrapper
-						input(type='text', name='url', placeholder='Please, input url with json')
+						select(name='op')
+							option(value='sort', selected) Сортировка
+							option(value='agr') Агрегация
+
+						input(type='text', name='url', placeholder='JSON URL')
 						select(name='field')
 							option(value='created', selected) Дата создания
 							option(value='score') Рейтинг
 
 						select(name='order')
 							option(value='ASC', selected='selected') По возрастанию
-							option(value='DES') По убыванию
+							option(value='DESC') По убыванию
 
 						select(name='format')
 							option(value='sql', selected='selected') SQL
@@ -23,7 +27,7 @@ block content
 					.extend-params.csv-params
 						input(type='text', name='csv-delimiter', placeholder='Разделитель CSV')
 
-					.extend-params.sql-params
+					.extend-params.sql-sort-params
 						.pure-g
 							.pure-u-1-5
 								.table-field-wrapper
@@ -46,21 +50,7 @@ block content
 									p Название поля с Заголовком
 									input(type='text', name='sql-title-name', placeholder='Название поля с Заголовком' value='title')
 
-
-					button#sort-btn(type='submit') Sort
-
-			.pure-u-1-2
-				form.agr-form(action='/api/agregate')
-					.form-wrapper
-						input(type='text', name='url', placeholder='Please, input url with json')
-						select(name='format')
-							option(value='sql', selected='selected') SQL
-							option(value='csv') CSV
-
-					.extend-params.csv-params
-						input(type='text', name='csv-delimiter', placeholder='Разделитель CSV')
-
-					.extend-params.sql-params
+					.extend-params.sql-agr-params
 						.pure-g
 							.pure-u-1-4
 								.table-field-wrapper
@@ -79,7 +69,7 @@ block content
 									p Название поля с суммарным рейтингом
 									input(type='text', name='sql-sum-name', placeholder='Название поля с суммарным рейтингом' value='sum')
 
-					button#agr-btn(type='submit') Agregate
 
+					button#submit-btn(type='submit') Отправить
 		.output
 			p
