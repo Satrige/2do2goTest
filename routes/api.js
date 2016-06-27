@@ -158,12 +158,12 @@ var parseAndValidate = function(input, callback) {
     for (let i in parsedData) {
         validStatus = conform.validate(parsedData[i], inputSchemaChild);
         if (!validStatus.valid) {
-            callback(new Error('Wrong input'));
+            callback(new Error(`Wrong element: ${JSON.stringify(parsedData[i], null, 4)}`));
             return;
         }
 
         if (parsedData[i].id <= parsedData[i].parentId) {
-            callback(new Error('Wrong input'));
+            callback(new Error(`Wrong element: ${JSON.stringify(parsedData[i], null, 4)}`));
             return;
         }
     }
@@ -179,7 +179,6 @@ router.get('/child', function(req, res, next) {
             if (err) throw err;
 
             parseLib.reformJSON(parsedData, this.slot());
-
         }, 
         function(err, output) {
             if (err) throw err;
