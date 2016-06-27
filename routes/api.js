@@ -1,8 +1,124 @@
+'use strict';
 var express = require('express');
 var router = express.Router();
+var postsLib = require('../controllers/postsLib');
+var formatLib = require('../controllers/formatLib');
+var Step = require('twostep').Step;
+var conform = require('conform');
 
-router.get('/', function(req, res, next) {
-  res.send('respond with a api');
+var inputSchemaSort = {
+    properties: {
+        url: {
+            description: 'the url the object should be stored at',
+            type: 'string',
+            pattern: 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}([-a-zA-Z0-9@:%_\+.~#?&//=]*)',
+            required: true
+        },
+        field: {
+            description: 'the field for sorting. Maybe "score" or "created".',
+            type: 'string',
+            default: 'created'
+        },
+        order: {
+            description: 'sort order. Maybe "ASC" or "DESC".',
+            type: 'string',
+            default: 'ACS'
+        },
+        format : {
+        	description: 'output format. Maybe "CSV" or "SQL".',
+        	type: 'string',
+            default: 'CSV'
+        }
+    }
+};
+
+var inputSchemaAgr = {
+    properties: {
+        url: {
+            description: 'the url the object should be stored at',
+            type: 'string',
+            pattern: 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}([-a-zA-Z0-9@:%_\+.~#?&//=]*)',
+            required: true
+        }
+    }
+};
+
+router.get('/sort', function(req, res, next) {
+    Step(function() {
+            var validInfo = conform.validate(req.query, inputSchemaSort);
+            if (validInfo.valid) {
+                this.pass(req.query);
+            } else {
+                throw new Error('wrong_params');
+            }
+        },
+        function(err, params) {
+        	if (err) throw err;
+            
+            postsLib.sortArticles(params, this.slot());
+        }, 
+        function(err, sortedItems) {
+        	if (err) throw err;
+
+            formatLib.formatAnsw({
+            	formatParams : req.query,
+            	items : formatLib.convertCommonForSort(sortedItems)
+            }, this.slot());
+        }, 
+        function(err, answ) {
+        	if (err) throw err;
+
+        	res.json({
+    			res : 'ok',
+    			answ : answ
+    		});
+        },
+        function(err) {
+            res.json({
+                res: 'err',
+                descr: err.message
+            })
+        }
+    );
+});
+
+router.get('/agregate', function(req, res, next) {
+    Step(function() {
+            var validInfo = conform.validate(req.query, inputSchemaSort);
+            if (validInfo.valid) {
+                this.pass(req.query);
+            } else {
+                throw new Error('wrong_params');
+            }
+        },
+        function(err, params) {
+            if (err) throw err;
+            
+            postsLib.aggregateArticles(params, this.slot());
+        }, 
+        function(err, sortedItems) {
+            if (err) throw err;
+
+            formatLib.formatAnsw({
+                formatParams : req.query,
+                items : formatLib.convertCommonForAggregate(sortedItems)
+            }, this.slot());
+        }, 
+        function(err, answ) {
+            if (err) throw err;
+
+            res.json({
+                res : 'ok',
+                answ : answ
+            });
+        },
+        function(err) {
+            res.json({
+                res: 'err',
+                descr: err.message
+            })
+        }
+    );
 });
 
 module.exports = router;

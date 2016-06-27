@@ -6,3 +6,32 @@ body {
 a {
   color: #00B7FF;
 }
+
+.form-wrapper input, select {
+	display: block;
+	margin-bottom: 10px;
+}
+
+input {
+	max-width: 100%;
+}
+
+.extend-params {
+	padding-bottom: 10px;
+}
+
+.csv-params {
+	display: none;
+}
+
+.output {
+	padding: 10px;
+}
+
+.table-field-wrapper {
+	margin-right: 10px;
+}
+
+.table-field-wrapper p {
+	min-height: 50px;
+}

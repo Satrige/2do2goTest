@@ -3,67 +3,102 @@
 /**
  * Module dependencies.
  */
- 'use strict';
+'use strict';
 
-var app = require('../app');
+var prodHosts = require('../data/hosts.json');
 var debug = require('debug')('nodetest:server');
+var dbLib = require('../controllers/dbLib');
 var http = require('http');
 var cluster = require('cluster');
+var os = require('os');
+var Step = require('twostep').Step;
 
+//Setting up global variables
+var isProd = (prodHosts.indexOf(os.hostname()) !== -1);
+var config = isProd ? require('../data/config.json').production : require('../data/config.json').development;
+var nodeSettings = config.node;
 /**
  * Get port from environment and store in Express.
  */
 
- if (cluster.isMaster) {
-  // Count the machine's CPUs
-  var cpuCount = require('os').cpus().length;
+if (cluster.isMaster) {
+    // Count the machine's CPUs
+    var cpuCount = require('os').cpus().length;
 
-  // Create a worker for each CPU
-  for (var i = 0; i < cpuCount; i += 1) {
-      cluster.fork({
-        workertype : 'web',
-        PORT : '3001'
-      });
-  }
- }
- else {
-  var port = normalizePort(process.env.PORT || '3000');
-  console.log('port: ' + port);
-  app.set('port', port);
+    // Create a worker for each CPU
+    for (var i = 0; i < cpuCount; ++i) {
+        cluster.fork({
+            workertype: 'web',
+            PORT: nodeSettings.port,
+            config: config
+        });
+    }
+} else {
+    var app = require('../app');
+    var port = normalizePort(process.env.PORT || '3000');
+    var server = {};
 
-  /**
-   * Create HTTP server.
-   */
+    console.log('port: ' + port);
+    app.set('port', port);
+    app.set('set', isProd ? "prod" : "dev");
 
-  var server = http.createServer(app);
+    /**
+     * Create HTTP server.
+     */
 
-  /**
-   * Listen on provided port, on all network interfaces.
-   */
+    Step(function() {
+    		dbLib.initDB(this.slot());
+    	},
+        function(err, answ) {
+            if (!err) {
+                console.log("OK");
+                server = http.createServer(app);
 
-  server.listen(port);
-  server.on('error', onError);
-  server.on('listening', onListening);
- }
+                server.listen(port);
+                server.on('error', onError);
+                server.on('listening', onListening);
+            } else {
+            	console.log("Error while trying to open db: " + err);
+                console.log("ERROR");
+            }
+        }
+    );
 
-/**
- * Normalize a port into a number, string, or false.
- */
+    // initDB(function(answ) {
+    //     if (answ.res === "ok") {
+    //         console.log("OK");
+    //         server = http.createServer(app);
+
+    //         server.listen(port);
+		  //   server.on('error', onError);
+		  //   server.on('listening', onListening);
+    //     } else {
+    //     	console.log("ERROR");
+    //     }
+    // });
+
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+
+    
+}
+
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+    var port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -71,27 +106,25 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 /**
@@ -99,9 +132,7 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    var addr = server.address();
+    var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+    debug('Listening on ' + bind);
 }

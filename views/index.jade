@@ -1,5 +1,85 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	h1= title
+	.wrapper
+		.pure-g
+			.pure-u-1-2
+				form.sort-form(action='/api/sort')
+					.form-wrapper
+						input(type='text', name='url', placeholder='Please, input url with json')
+						select(name='field')
+							option(value='created', selected) Дата создания
+							option(value='score') Рейтинг
+
+						select(name='order')
+							option(value='ASC', selected='selected') По возрастанию
+							option(value='DES') По убыванию
+
+						select(name='format')
+							option(value='sql', selected='selected') SQL
+							option(value='csv') CSV
+
+					.extend-params.csv-params
+						input(type='text', name='csv-delimiter', placeholder='Разделитель CSV')
+
+					.extend-params.sql-params
+						.pure-g
+							.pure-u-1-5
+								.table-field-wrapper
+									p Название таблицы в SQL
+									input(type='text', name='sql-table-name', placeholder='Название таблицы в SQL' value='posts')
+							.pure-u-1-5
+								.table-field-wrapper
+									p Название поля с Id
+									input(type='text', name='sql-id-name', placeholder='Название поля с Id' value='id')
+							.pure-u-1-5
+								.table-field-wrapper
+									p Название поля с Датой
+									input(type='text', name='sql-date-name', placeholder='Название поля с Датой' value='created')
+							.pure-u-1-5
+								.table-field-wrapper
+									p Название поля с Рейтингом
+									input(type='text', name='sql-rating-name', placeholder='Название поля с Рейтингом' value='score')
+							.pure-u-1-5
+								.table-field-wrapper
+									p Название поля с Заголовком
+									input(type='text', name='sql-title-name', placeholder='Название поля с Заголовком' value='title')
+
+
+					button#sort-btn(type='submit') Sort
+
+			.pure-u-1-2
+				form.agr-form(action='/api/agregate')
+					.form-wrapper
+						input(type='text', name='url', placeholder='Please, input url with json')
+						select(name='format')
+							option(value='sql', selected='selected') SQL
+							option(value='csv') CSV
+
+					.extend-params.csv-params
+						input(type='text', name='csv-delimiter', placeholder='Разделитель CSV')
+
+					.extend-params.sql-params
+						.pure-g
+							.pure-u-1-4
+								.table-field-wrapper
+									p Название таблицы в SQL
+									input(type='text', name='sql-table-name', placeholder='Название таблицы в SQL' value='posts')
+							.pure-u-1-4
+								.table-field-wrapper
+									p Название поля с именем домена
+									input(type='text', name='sql-domain-name', placeholder='Название поля с именем домена' value='domain')
+							.pure-u-1-4
+								.table-field-wrapper
+									p Название поля с числом статей
+									input(type='text', name='sql-count-name', placeholder='Название поля с числом статей' value='count')
+							.pure-u-1-4
+								.table-field-wrapper
+									p Название поля с суммарным рейтингом
+									input(type='text', name='sql-sum-name', placeholder='Название поля с суммарным рейтингом' value='sum')
+
+					button#agr-btn(type='submit') Agregate
+
+		.output
+			p
