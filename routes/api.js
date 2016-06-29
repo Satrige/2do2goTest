@@ -127,7 +127,7 @@ var inputSchemaChild = {
 };
 
 var parseAndValidate = function(input, callback) {
-    if (!input || input === '') {
+    if (!input) {
         callback(new Error('Wrong input'));
         return;
     }
@@ -169,7 +169,7 @@ var parseAndValidate = function(input, callback) {
     }
 
     callback(null, parsedData);
-}
+};
 
 router.get('/child', function(req, res, next) {
     Step(function() {
